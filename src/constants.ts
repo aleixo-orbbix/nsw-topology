@@ -17,7 +17,6 @@ export const DEFAULT_APPEARANCE: AppearanceConfig = {
   showGrid: true,
   gridSize: 20,
   gridColor: '#1e2130',
-  showDonateCard: true,
 };
 
 export const DEFAULT_COLORS: ColorsConfig = {
@@ -31,7 +30,6 @@ export const DEFAULT_INTERACTION: InteractionConfig = {
   enablePan: true,
   showMiniMap: true,
   showLegend: true,
-  showWelcome: true,
 };
 
 export const DEFAULT_OPTIONS: TopologyOptions = {
@@ -128,6 +126,8 @@ export const CAPACITY_OPTIONS = [
   { value: 40000, label: '40 Gb' },
   { value: 60000, label: '60 Gb' },
   { value: 100000, label: '100 Gb' },
+  { value: 200000, label: '200 Gb' },
+  { value: 300000, label: '300 Gb' },
 ];
 
 export const ICON_SIZE_OPTIONS = [

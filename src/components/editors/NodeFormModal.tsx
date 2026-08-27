@@ -21,14 +21,13 @@ import { COLORS, FONT, SECTION_HEADER } from '../../styles/tokens';
 interface Props {
   node: NodeConfig | null;
   hostNames: string[];
-  usedHostNames: string[];
   hostFieldMap: Record<string, string[]>;
   onSave: (n: NodeConfig) => void;
   onCancel: () => void;
 }
 
 // node create/edit modal — auto-detects default metrics from host fields
-export const NodeFormModal: React.FC<Props> = ({ node, hostNames, usedHostNames, hostFieldMap, onSave, onCancel }) => {
+export const NodeFormModal: React.FC<Props> = ({ node, hostNames, hostFieldMap, onSave, onCancel }) => {
   const [name, setName] = useState(node?.name || '');
   const [hostName, setHostName] = useState(node?.hostName || '');
   const [ip, setIp] = useState(node?.ip || '');
@@ -120,13 +119,9 @@ export const NodeFormModal: React.FC<Props> = ({ node, hostNames, usedHostNames,
     return defaults;
   });
 
-  const availableHosts = useMemo(() => {
-    return hostNames.filter((h) => !usedHostNames.includes(h) || h === node?.hostName);
-  }, [hostNames, usedHostNames, node]);
-
   const hostOpts = useMemo(
-    () => [{ value: '', label: 'Select...' }, ...availableHosts.map((h) => ({ value: h, label: h }))],
-    [availableHosts]
+    () => [{ value: '', label: 'Select...' }, ...hostNames.map((h) => ({ value: h, label: h }))],
+    [hostNames]
   );
 
   const fieldOpts = useMemo(() => {

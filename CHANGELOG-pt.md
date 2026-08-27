@@ -15,7 +15,6 @@ Reescrita total. Saiu o Cytoscape.js, entrou o **ReactFlow**. Plugin renomeado d
 - Grid, mini-mapa, legenda, busca
 - Backup/restore com importação de backup da v1 (converte topologia antiga)
 - Tela de boas-vindas
-- Card de doação (dá pra esconder)
 
 **Quebra compatibilidade:** ID do plugin mudou. JSON da v1 precisa ser importado via "Importar Backup V1".
 

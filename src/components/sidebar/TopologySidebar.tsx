@@ -8,7 +8,6 @@ interface Props {
   onBackup: () => void;
   zoomEnabled: boolean;
   searchOpen: boolean;
-  showDonateHeart?: boolean;
 }
 
 export const TopologySidebar: React.FC<Props> = ({
@@ -19,7 +18,6 @@ export const TopologySidebar: React.FC<Props> = ({
   onBackup,
   zoomEnabled,
   searchOpen,
-  showDonateHeart,
 }) => {
   return (
     <div style={bar}>
@@ -34,36 +32,6 @@ export const TopologySidebar: React.FC<Props> = ({
         active={zoomEnabled}
       />
       <SidebarBtn icon={backupIcon} tooltip="Manage Backups" onClick={onBackup} />
-      {showDonateHeart && (
-        <>
-          <div style={{ flex: 1 }} />
-          <a
-            href="https://www.paypal.com/donate/?business=Z9USFAAMBJ29S&no_recurring=0&item_name=Developing+the+Network+Topology+plugin+for+Grafana+to+solve+real+monitoring+issues.+Help+me+keep+the+project+evolving%21&currency_code=BRL"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Donate to development"
-            style={{
-              ...btnBase,
-              marginTop: 'auto',
-              marginBottom: 16,
-              color: '#fff',
-              background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-              animation: 'nswGlowPulseSidebar 2s ease-in-out infinite',
-              textDecoration: 'none',
-              transform: 'none',
-              fontSize: 16,
-            }}
-          >
-            ❤️
-          </a>
-          <style>{`
-            @keyframes nswGlowPulseSidebar {
-              0%, 100% { box-shadow: 0 0 8px rgba(245,158,11,0.3); }
-              50% { box-shadow: 0 0 18px rgba(245,158,11,0.6), 0 0 30px rgba(239,68,68,0.3); }
-            }
-          `}</style>
-        </>
-      )}
     </div>
   );
 };

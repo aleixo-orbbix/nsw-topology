@@ -17,7 +17,6 @@ Full rewrite. Moved from Cytoscape.js to **ReactFlow** and renamed the plugin fr
 - Grid snapping, mini-map, legend, search
 - Backup/restore with v1 import (converts old Cytoscape topology)
 - Welcome screen with guided setup
-- Donate card (can be hidden)
 
 **Breaking:** plugin ID changed. Dashboard JSON from v1 needs to be imported via "Import V1 Backup".
 

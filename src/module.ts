@@ -88,19 +88,6 @@ export const plugin = new PanelPlugin<TopologyOptions>(TopologyPanel)
         name: 'Show Legend',
         defaultValue: DEFAULT_INTERACTION.showLegend,
         category: ['Interaction'],
-      })
-      .addBooleanSwitch({
-        path: 'interaction.showWelcome',
-        name: 'Show Welcome Screen',
-        defaultValue: DEFAULT_INTERACTION.showWelcome,
-        category: ['Interaction'],
-      })
-      .addBooleanSwitch({
-        path: 'appearance.showDonateCard',
-        name: 'Show Donate Card',
-        description: 'Show or hide the donate card in the topology view. If hidden, a donate icon will appear in the sidebar.',
-        defaultValue: DEFAULT_APPEARANCE.showDonateCard,
-        category: ['Appearance'],
       });
 
     return builder;

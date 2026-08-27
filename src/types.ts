@@ -88,7 +88,6 @@ export interface AppearanceConfig {
   showGrid: boolean;
   gridSize: number;
   gridColor: string;
-  showDonateCard: boolean;
 }
 
 export interface ColorsConfig {
@@ -102,7 +101,6 @@ export interface InteractionConfig {
   enablePan: boolean;
   showMiniMap: boolean;
   showLegend: boolean;
-  showWelcome: boolean;
 }
 
 // single metric from a zabbix interface (in/out traffic etc)

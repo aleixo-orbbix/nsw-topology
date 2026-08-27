@@ -6,7 +6,6 @@ import { parseDataFrames } from '../data/parser';
 import { DEFAULT_APPEARANCE, DEFAULT_COLORS, DEFAULT_INTERACTION, DEFAULT_METRIC } from '../constants';
 import { CanvasRenderer } from './canvas/CanvasRenderer';
 import { TopologySidebar } from './sidebar/TopologySidebar';
-import { WelcomeModal } from './WelcomeModal';
 import { BackupModal } from './editors/BackupModal';
 
 type Props = PanelProps<TopologyOptions>;
@@ -33,7 +32,6 @@ const InnerPanel: React.FC<Props> = ({ options, data, width, height, onOptionsCh
   const [zoomEnabled, setZoomEnabled] = useState(interaction.enableZoom);
   const [searchOpen, setSearchOpen] = useState(false);
   const [addNodeTrigger, setAddNodeTrigger] = useState(0);
-  const [showWelcome, setShowWelcome] = useState(interaction.showWelcome !== false);
   const [showBackup, setShowBackup] = useState(false);
   const reactFlow = useReactFlow();
 
@@ -108,20 +106,11 @@ const InnerPanel: React.FC<Props> = ({ options, data, width, height, onOptionsCh
 
   const handleToggleZoom = useCallback(() => setZoomEnabled((prev) => !prev), []);
 
-  const handleCloseWelcome = useCallback(() => {
-    setShowWelcome(false);
-    onOptionsChange({
-      ...options,
-      interaction: { ...interaction, showWelcome: false },
-    });
-  }, [options, interaction, onOptionsChange]);
-
   const titleBarHeight = title ? 40 : 0;
   const canvasHeight = height - titleBarHeight;
 
   return (
     <div style={{ position: 'relative', width, height, overflow: 'hidden', fontFamily: 'Inter, sans-serif' }}>
-      {showWelcome && <WelcomeModal onClose={handleCloseWelcome} />}
       {title && (
         <div
           style={{
@@ -152,7 +141,6 @@ const InnerPanel: React.FC<Props> = ({ options, data, width, height, onOptionsCh
           onBackup={() => setShowBackup(true)}
           zoomEnabled={zoomEnabled}
           searchOpen={searchOpen}
-          showDonateHeart={appearance.showDonateCard === false}
         />
         <div style={{ marginLeft: 48, width: width - 48, height: canvasHeight }}>
           <CanvasRenderer

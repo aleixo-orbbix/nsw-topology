@@ -623,7 +623,6 @@ export const CanvasRenderer: React.FC<Props> = ({
   );
 
   const bgColor = resolveGrafanaColor(appearance.bgColor || '#111217');
-  const usedHostNames = useMemo(() => nodeConfigs.map((n) => n.hostName), [nodeConfigs]);
 
   return (
     <div ref={containerRef} style={{ width, height, position: 'relative' }}>
@@ -725,63 +724,6 @@ export const CanvasRenderer: React.FC<Props> = ({
             </div>
           </Panel>
         )}
-        {appearance.showDonateCard !== false && (
-          <Panel position="top-left">
-            <div
-              style={{
-                background: COLORS.surfaceLight,
-                backdropFilter: BLUR,
-                border: `1px solid ${COLORS.border}`,
-                borderRadius: RADIUS.large,
-                padding: '10px 14px',
-                fontSize: 10,
-                color: COLORS.textMuted,
-                textAlign: 'center',
-                maxWidth: 200,
-              }}
-            >
-              <div style={{ fontSize: FONT.body, fontWeight: 600, color: COLORS.textSecondary, marginBottom: 4 }}>
-                NSW Topology by{' '}
-                <a
-                  href="https://github.com/gabrielnsw"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: COLORS.accentLight, textDecoration: 'none' }}
-                >
-                  @gabrielnsw
-                </a>
-              </div>
-              <div style={{ marginBottom: 4 }}>Thank you for being part of this!</div>
-              <div style={{ marginBottom: 8 }}>Any donation is welcome</div>
-              <a
-                href="https://www.paypal.com/donate/?business=Z9USFAAMBJ29S&no_recurring=0&item_name=Developing+the+Network+Topology+plugin+for+Grafana+to+solve+real+monitoring+issues.+Help+me+keep+the+project+evolving%21&currency_code=BRL"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="nsw-donate-btn"
-                style={{
-                  display: 'inline-block',
-                  padding: '5px 16px',
-                  fontSize: FONT.body,
-                  fontWeight: 700,
-                  color: COLORS.textWhite,
-                  background: `linear-gradient(135deg, ${COLORS.warning}, ${COLORS.red})`,
-                  borderRadius: RADIUS.medium,
-                  textDecoration: 'none',
-                  cursor: 'pointer',
-                  animation: 'nswGlow 2s ease-in-out infinite',
-                }}
-              >
-                ❤️ Donate
-              </a>
-            </div>
-          </Panel>
-        )}
-        <style>{`
-          @keyframes nswGlow {
-            0%, 100% { box-shadow: 0 0 8px rgba(245,158,11,0.3); }
-            50% { box-shadow: 0 0 18px rgba(245,158,11,0.6), 0 0 30px rgba(239,68,68,0.3); }
-          }
-        `}</style>
         {searchOpen && (
           <Panel position="top-center">
             <SearchBar query={searchQuery} onChange={setSearchQuery} />
@@ -803,7 +745,6 @@ export const CanvasRenderer: React.FC<Props> = ({
         <NodeFormModal
           node={editingNode}
           hostNames={hostNames}
-          usedHostNames={usedHostNames}
           hostFieldMap={hostFieldMap}
           onSave={handleSaveNode}
           onCancel={() => {
