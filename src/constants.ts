@@ -26,6 +26,7 @@ export const DEFAULT_COLORS: ColorsConfig = {
 };
 
 export const DEFAULT_INTERACTION: InteractionConfig = {
+  editMode: true,
   enableZoom: true,
   enablePan: true,
   showMiniMap: true,

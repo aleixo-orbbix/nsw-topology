@@ -40,6 +40,7 @@ export type TopologyNodeData = {
   iconSize: number;
   width: number;
   height: number;
+  editMode?: boolean;
 };
 
 type TopologyNodeType = Node<TopologyNodeData, 'topology'>;
@@ -57,33 +58,36 @@ const handleStyle: React.CSSProperties = {
 
 export const TopologyNode = memo(({ data, selected }: NodeProps<TopologyNodeType>) => {
   const { label, icon, statusColor, status, uptimeValue, connections, metrics, textSize, iconSize } = data;
+  const editMode = data.editMode !== false;
   const [hovered, setHovered] = useState(false);
   const nodeRef = useRef<HTMLDivElement>(null);
   const iconUri = getIconDataUriColored(icon, COLORS.textWhite);
 
   return (
     <>
-      <NodeResizeControl
-        position="bottom-right"
-        minWidth={80}
-        minHeight={60}
-        style={{ background: 'transparent', border: 'none', width: 14, height: 14, cursor: 'se-resize' }}
-      >
-        <svg width="10" height="10" viewBox="0 0 10 10" style={{ display: 'block' }}>
-          <path
-            d="M9 1v8H1"
-            fill="none"
-            stroke={selected ? COLORS.textWhite : 'rgba(255,255,255,0.4)'}
-            strokeWidth="1.5"
-          />
-          <path
-            d="M9 5v4H5"
-            fill="none"
-            stroke={selected ? COLORS.textWhite : 'rgba(255,255,255,0.4)'}
-            strokeWidth="1.5"
-          />
-        </svg>
-      </NodeResizeControl>
+      {editMode && (
+        <NodeResizeControl
+          position="bottom-right"
+          minWidth={80}
+          minHeight={60}
+          style={{ background: 'transparent', border: 'none', width: 14, height: 14, cursor: 'se-resize' }}
+        >
+          <svg width="10" height="10" viewBox="0 0 10 10" style={{ display: 'block' }}>
+            <path
+              d="M9 1v8H1"
+              fill="none"
+              stroke={selected ? COLORS.textWhite : 'rgba(255,255,255,0.4)'}
+              strokeWidth="1.5"
+            />
+            <path
+              d="M9 5v4H5"
+              fill="none"
+              stroke={selected ? COLORS.textWhite : 'rgba(255,255,255,0.4)'}
+              strokeWidth="1.5"
+            />
+          </svg>
+        </NodeResizeControl>
+      )}
 
       <Handle type="source" position={Position.Top} id="top" style={handleStyle} />
       <Handle type="source" position={Position.Bottom} id="bottom" style={handleStyle} />
@@ -112,7 +116,7 @@ export const TopologyNode = memo(({ data, selected }: NodeProps<TopologyNodeType
           position: 'relative',
           gap: 4,
           padding: '8px 6px',
-          cursor: 'grab',
+          cursor: editMode ? 'grab' : 'default',
         }}
       >
         <img

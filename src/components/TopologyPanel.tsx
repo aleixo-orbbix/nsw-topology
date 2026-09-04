@@ -108,6 +108,10 @@ const InnerPanel: React.FC<Props> = ({ options, data, width, height, onOptionsCh
 
   const titleBarHeight = title ? 40 : 0;
   const canvasHeight = height - titleBarHeight;
+  // read-only mode: no toolbar, canvas takes the full panel width
+  const editMode = interaction.editMode !== false;
+  const sidebarWidth = editMode ? 48 : 0;
+  const canvasWidth = width - sidebarWidth;
 
   return (
     <div style={{ position: 'relative', width, height, overflow: 'hidden', fontFamily: 'Inter, sans-serif' }}>
@@ -133,16 +137,18 @@ const InnerPanel: React.FC<Props> = ({ options, data, width, height, onOptionsCh
         </div>
       )}
       <div style={{ position: 'relative', height: canvasHeight }}>
-        <TopologySidebar
-          onAddNode={() => setAddNodeTrigger((prev) => prev + 1)}
-          onCenterMap={handleCenterMap}
-          onToggleZoom={handleToggleZoom}
-          onToggleSearch={() => setSearchOpen((prev) => !prev)}
-          onBackup={() => setShowBackup(true)}
-          zoomEnabled={zoomEnabled}
-          searchOpen={searchOpen}
-        />
-        <div style={{ marginLeft: 48, width: width - 48, height: canvasHeight }}>
+        {editMode && (
+          <TopologySidebar
+            onAddNode={() => setAddNodeTrigger((prev) => prev + 1)}
+            onCenterMap={handleCenterMap}
+            onToggleZoom={handleToggleZoom}
+            onToggleSearch={() => setSearchOpen((prev) => !prev)}
+            onBackup={() => setShowBackup(true)}
+            zoomEnabled={zoomEnabled}
+            searchOpen={searchOpen}
+          />
+        )}
+        <div style={{ marginLeft: sidebarWidth, width: canvasWidth, height: canvasHeight }}>
           <CanvasRenderer
             nodes={nodes}
             connections={connections}
@@ -152,8 +158,9 @@ const InnerPanel: React.FC<Props> = ({ options, data, width, height, onOptionsCh
             hostNames={parsedData.hostNames}
             hostFieldMap={parsedData.hostFieldMap}
             dataSeries={data.series}
-            width={width - 48}
+            width={canvasWidth}
             height={canvasHeight}
+            editMode={editMode}
             enableZoom={zoomEnabled}
             enablePan={interaction.enablePan}
             showMiniMap={interaction.showMiniMap}
@@ -161,7 +168,7 @@ const InnerPanel: React.FC<Props> = ({ options, data, width, height, onOptionsCh
             title={title}
             titleSize={titleSize}
             addNodeTrigger={addNodeTrigger}
-            searchOpen={searchOpen}
+            searchOpen={editMode && searchOpen}
             onNodePositionChange={handleNodePositionChange}
             onNodeResize={handleNodeResize}
             onAddNode={handleAddNode}
@@ -173,7 +180,7 @@ const InnerPanel: React.FC<Props> = ({ options, data, width, height, onOptionsCh
           />
         </div>
       </div>
-      {showBackup && (
+      {editMode && showBackup && (
         <BackupModal
           options={options}
           onRestore={(patch) => updateOptions(patch)}

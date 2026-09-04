@@ -97,6 +97,8 @@ export interface ColorsConfig {
 }
 
 export interface InteractionConfig {
+  // when false the canvas is read-only: sidebar hidden, no drag/resize/connect/edit
+  editMode: boolean;
   enableZoom: boolean;
   enablePan: boolean;
   showMiniMap: boolean;

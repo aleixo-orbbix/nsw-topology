@@ -59,6 +59,7 @@ interface Props {
   dataSeries: any[];
   width: number;
   height: number;
+  editMode: boolean;
   enableZoom: boolean;
   enablePan: boolean;
   showMiniMap: boolean;
@@ -88,6 +89,7 @@ export const CanvasRenderer: React.FC<Props> = ({
   dataSeries,
   width,
   height,
+  editMode,
   enableZoom,
   enablePan,
   showMiniMap,
@@ -133,12 +135,29 @@ export const CanvasRenderer: React.FC<Props> = ({
   useEffect(() => {
     if (addNodeTrigger !== lastTrigger.current) {
       lastTrigger.current = addNodeTrigger;
+      if (!editMode) {
+        return;
+      }
       queueMicrotask(() => {
         setEditingNode(null);
         setShowNodeModal(true);
       });
     }
-  }, [addNodeTrigger]);
+  }, [addNodeTrigger, editMode]);
+
+  // leaving edit mode closes anything still open
+  useEffect(() => {
+    if (!editMode) {
+      setCtxMenu(null);
+      setShowNodeModal(false);
+      setEditingNode(null);
+      setShowConnModal(false);
+      setEditingConn(null);
+      setPendingConn(null);
+      setDeleteTarget(null);
+      setSearchQuery('');
+    }
+  }, [editMode]);
 
   const getMetricValue = useCallback(
     (node: NodeConfig, field: string): number | null => {
@@ -404,6 +423,7 @@ export const CanvasRenderer: React.FC<Props> = ({
             iconSize: node.iconSize || DEFAULT_ICON_SIZE,
             width: node.width || DEFAULT_NODE_WIDTH,
             height: node.height || DEFAULT_NODE_HEIGHT,
+            editMode,
           },
         };
       }),
@@ -417,6 +437,7 @@ export const CanvasRenderer: React.FC<Props> = ({
       nodeHasZeroTraffic,
       resolvedColors,
       searchQuery,
+      editMode,
     ]
   );
 
@@ -499,6 +520,9 @@ export const CanvasRenderer: React.FC<Props> = ({
   const handleNodesChange: OnNodesChange<TopologyNodeType> = useCallback(
     (changes) => {
       onNodesChange(changes);
+      if (!editMode) {
+        return;
+      }
       for (const c of changes) {
         if (c.type === 'position') {
           const p = c as NodePositionChange;
@@ -520,39 +544,63 @@ export const CanvasRenderer: React.FC<Props> = ({
         }
       }
     },
-    [onNodesChange, onNodePositionChange, onNodeResize, appearance.showGrid, appearance.gridSize]
+    [onNodesChange, onNodePositionChange, onNodeResize, appearance.showGrid, appearance.gridSize, editMode]
   );
 
   const handleEdgesChange: OnEdgesChange<WeathermapEdgeType> = useCallback((c) => onEdgesChange(c), [onEdgesChange]);
 
-  const handleConnect: OnConnect = useCallback((params) => {
-    if (params.source && params.target && params.source !== params.target) {
-      setPendingConn({
-        sourceId: params.source,
-        targetId: params.target,
-        sourceHandle: params.sourceHandle || 'bottom',
-        targetHandle: params.targetHandle || 'top',
-      });
-      setEditingConn(null);
-      setShowConnModal(true);
-    }
-  }, []);
+  const handleConnect: OnConnect = useCallback(
+    (params) => {
+      if (!editMode) {
+        return;
+      }
+      if (params.source && params.target && params.source !== params.target) {
+        setPendingConn({
+          sourceId: params.source,
+          targetId: params.target,
+          sourceHandle: params.sourceHandle || 'bottom',
+          targetHandle: params.targetHandle || 'top',
+        });
+        setEditingConn(null);
+        setShowConnModal(true);
+      }
+    },
+    [editMode]
+  );
 
-  const handleNodeContextMenu = useCallback((e: React.MouseEvent, node: TopologyNodeType) => {
-    e.preventDefault();
-    const b = containerRef.current?.getBoundingClientRect();
-    setCtxMenu({ type: 'node', id: node.id, x: e.clientX - (b?.left || 0), y: e.clientY - (b?.top || 0) });
-  }, []);
+  const handleNodeContextMenu = useCallback(
+    (e: React.MouseEvent, node: TopologyNodeType) => {
+      if (!editMode) {
+        return;
+      }
+      e.preventDefault();
+      const b = containerRef.current?.getBoundingClientRect();
+      setCtxMenu({ type: 'node', id: node.id, x: e.clientX - (b?.left || 0), y: e.clientY - (b?.top || 0) });
+    },
+    [editMode]
+  );
 
-  const handleEdgeContextMenu = useCallback((e: React.MouseEvent, edge: WeathermapEdgeType) => {
-    e.preventDefault();
-    const b = containerRef.current?.getBoundingClientRect();
-    setCtxMenu({ type: 'edge', id: edge.id, x: e.clientX - (b?.left || 0), y: e.clientY - (b?.top || 0) });
-  }, []);
+  const handleEdgeContextMenu = useCallback(
+    (e: React.MouseEvent, edge: WeathermapEdgeType) => {
+      if (!editMode) {
+        return;
+      }
+      e.preventDefault();
+      const b = containerRef.current?.getBoundingClientRect();
+      setCtxMenu({ type: 'edge', id: edge.id, x: e.clientX - (b?.left || 0), y: e.clientY - (b?.top || 0) });
+    },
+    [editMode]
+  );
 
   const handlePaneClick = useCallback(() => {
     setCtxMenu(null);
   }, []);
+
+  // xyflow turns off pointer-events on a node whose wrapper is neither selectable,
+  // draggable nor clickable, and tags such an edge `.inactive` (also pointer-events: none).
+  // In view mode that would kill the informational hover tooltips, so we register these
+  // no-op handlers to keep both hit-testable without enabling any editing.
+  const keepHoverable = useCallback(() => undefined, []);
 
   const handleCtxEdit = useCallback(() => {
     if (!ctxMenu) {
@@ -645,6 +693,13 @@ export const CanvasRenderer: React.FC<Props> = ({
         .react-flow__node:hover .react-flow__resize-control,
         .react-flow__node.selected .react-flow__resize-control { opacity: 1; }
         .react-flow__controls { display: none !important; }
+        ${
+          !editMode
+            ? `.react-flow__handle { opacity: 0 !important; pointer-events: none !important; }
+        .react-flow__resize-control { display: none !important; }
+        .react-flow__pane { cursor: ${enablePan ? 'grab' : 'default'}; }`
+            : ''
+        }
       `}</style>
       <ReactFlow
         nodes={rfNodes}
@@ -657,8 +712,19 @@ export const CanvasRenderer: React.FC<Props> = ({
         onNodeContextMenu={handleNodeContextMenu}
         onEdgeContextMenu={handleEdgeContextMenu}
         onPaneClick={handlePaneClick}
+        onNodeMouseEnter={keepHoverable}
+        onEdgeClick={keepHoverable}
         connectionLineComponent={FloatingConnectionLine}
         connectionMode={ConnectionMode.Loose}
+        nodesDraggable={editMode}
+        nodesConnectable={editMode}
+        nodesFocusable={editMode}
+        edgesFocusable={editMode}
+        edgesReconnectable={editMode}
+        elementsSelectable={editMode}
+        deleteKeyCode={editMode ? undefined : null}
+        selectionKeyCode={editMode ? undefined : null}
+        multiSelectionKeyCode={editMode ? undefined : null}
         zoomOnScroll={enableZoom}
         zoomOnPinch={enableZoom}
         zoomOnDoubleClick={false}
@@ -669,7 +735,7 @@ export const CanvasRenderer: React.FC<Props> = ({
         fitView
         proOptions={{ hideAttribution: true }}
         style={{ background: bgColor }}
-        snapToGrid={appearance.showGrid}
+        snapToGrid={editMode && appearance.showGrid}
         snapGrid={[appearance.gridSize, appearance.gridSize]}
       >
         <Background
@@ -731,9 +797,11 @@ export const CanvasRenderer: React.FC<Props> = ({
         )}
       </ReactFlow>
 
-      {ctxMenu && <ContextMenu x={ctxMenu.x} y={ctxMenu.y} onEdit={handleCtxEdit} onDelete={handleCtxDelete} />}
+      {editMode && ctxMenu && (
+        <ContextMenu x={ctxMenu.x} y={ctxMenu.y} onEdit={handleCtxEdit} onDelete={handleCtxDelete} />
+      )}
 
-      {deleteTarget && (
+      {editMode && deleteTarget && (
         <DeleteConfirmation
           type={deleteTarget.type}
           onConfirm={handleConfirmDelete}
@@ -741,7 +809,7 @@ export const CanvasRenderer: React.FC<Props> = ({
         />
       )}
 
-      {showNodeModal && (
+      {editMode && showNodeModal && (
         <NodeFormModal
           node={editingNode}
           hostNames={hostNames}
@@ -754,7 +822,7 @@ export const CanvasRenderer: React.FC<Props> = ({
         />
       )}
 
-      {showConnModal && (
+      {editMode && showConnModal && (
         <ConnFormModal
           conn={editingConn}
           pendingConn={pendingConn}
